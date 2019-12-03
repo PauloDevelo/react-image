@@ -3,12 +3,14 @@
   "version": "2.2.1",
   "description": "React Image is an <img> tag replacement for react, featuring preloader and multiple image fallback support",
   "scripts": {
-    "build": "NODE_ENV=production rollup -c && node ./webpack.site.js && for i in cjs esm umd; do cp src/*test.js $i; done",
+    "build": "export NODE_ENV=production || set NODE_ENV=production&& node ./webpack.site.js",
     "codecov": "codecov",
     "dev": "node ./webpack.site.js --watch --server",
     "pretty": "prettier *.js src/**/*.js --write",
     "shouldPublish": "semver `npm -s view $npm_package_name version` --range \"<$npm_package_version\"",
-    "test": "jest --projects jest*.json"
+    "test": "jest --projects jest*.json",
+    "prebuild": "rollup -c",
+    "pretest": "for i in cjs esm umd; do cp src/*test.js $i; done"
   },
   "repository": {
     "type": "git",

@@ -1,4 +1,5 @@
 import React, {Component} from 'react'
+
 import {
   node,
   func,
@@ -33,6 +34,7 @@ class Img extends Component {
     unloader: false,
     decode: true,
     src: [],
+    localforage: undefined,
     // by default, just return what gets sent in. Can be used for advanced rendering
     // such as animations
     container: x => x
@@ -70,12 +72,30 @@ class Img extends Component {
         {isLoading: false, isLoaded: false}
   }
 
+  getBase64Image = (img) => {
+    var canvas = document.createElement("canvas");
+    canvas.width = img.width;
+    canvas.height = img.height;
+
+    var ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0);
+
+    return canvas.toDataURL("image/png");
+  }
+
   srcToArray = src => (Array.isArray(src) ? src : [src]).filter(x => x)
 
   onLoad = () => {
     cache[this.sourceList[this.state.currentIndex]] = true
+
     /* istanbul ignore else */
-    if (this.i) this.setState({isLoaded: true})
+    if (this.i){
+      if (this.i.src === this.sourceList[this.state.currentIndex] && this.props.localforage !== undefined){
+        this.props.localforage.setItem(this.sourceList[this.state.currentIndex], this.getBase64Image(this.i));
+      }
+
+      this.setState({isLoaded: true})
+    } 
   }
 
   onError = () => {
@@ -124,23 +144,40 @@ class Img extends Component {
     this.loadImg()
   }
 
-  loadImg = () => {
+  loadImg = async () => {
+    const { localforage } = this.props;
+
     if (process.env.NODE_ENV != 'production') {
       this.i = this.props.mockImage || new Image()
     } else {
       this.i = new Image()
     }
-    this.i.src = this.sourceList[this.state.currentIndex]
+
+    if (localforage !== undefined){
+      const base64Image = await localforage.getItem(this.sourceList[this.state.currentIndex]);
+      if (base64Image){
+        this.i.src = base64Image;
+      }
+      else{
+        this.i.src = this.sourceList[this.state.currentIndex]
+      }
+    }
+    else{
+      this.i.src = this.sourceList[this.state.currentIndex]
+    }
 
     if (this.props.crossorigin) {
       this.i.crossOrigin = this.props.crossorigin
     }
 
     if (this.props.decode && this.i.decode) {
-      this.i
-        .decode()
-        .then(this.onLoad)
-        .catch(this.onError)
+      try{
+        await this.i.decode()
+        this.onLoad();
+      }
+      catch(reason){
+        this.onError(reason)
+      }
     } else {
       this.i.onload = this.onLoad
       this.i.onerror = this.onError

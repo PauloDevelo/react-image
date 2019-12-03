@@ -9,8 +9,9 @@
     "pretty": "prettier *.js src/**/*.js --write",
     "shouldPublish": "semver `npm -s view $npm_package_name version` --range \"<$npm_package_version\"",
     "test": "jest --projects jest*.json",
+    "test2": "jest",
     "prebuild": "rollup -c",
-    "pretest": "for i in cjs esm umd; do cp src/*test.js $i; done"
+    "copytestfile": "for i in cjs esm umd; do cp src/*test.js $i; done"
   },
   "repository": {
     "type": "git",
@@ -95,6 +96,7 @@
     "react-dom": "^15 || ^16"
   },
   "dependencies": {
+    "localforage": "^1.7.3",
     "prop-types": "15.7.2"
   }
 }

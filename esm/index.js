@@ -1,4 +1,5 @@
 import _objectWithoutProperties from '@babel/runtime/helpers/objectWithoutProperties';
+import _regeneratorRuntime from '@babel/runtime/regenerator';
 import _classCallCheck from '@babel/runtime/helpers/classCallCheck';
 import _createClass from '@babel/runtime/helpers/createClass';
 import _possibleConstructorReturn from '@babel/runtime/helpers/possibleConstructorReturn';
@@ -41,6 +42,15 @@ function (_Component) {
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Img).call(this, props)); // default loader/unloader container to just container. If no container was set
     // this will be a noop
 
+    _defineProperty(_assertThisInitialized(_this), "getBase64Image", function (img) {
+      var canvas = document.createElement("canvas");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      var ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+      return canvas.toDataURL("image/png");
+    });
+
     _defineProperty(_assertThisInitialized(_this), "srcToArray", function (src) {
       return (Array.isArray(src) ? src : [src]).filter(function (x) {
         return x;
@@ -51,9 +61,15 @@ function (_Component) {
       cache[_this.sourceList[_this.state.currentIndex]] = true;
       /* istanbul ignore else */
 
-      if (_this.i) _this.setState({
-        isLoaded: true
-      });
+      if (_this.i) {
+        if (_this.i.src === _this.sourceList[_this.state.currentIndex] && _this.props.localforage !== undefined) {
+          _this.props.localforage.setItem(_this.sourceList[_this.state.currentIndex], _this.getBase64Image(_this.i));
+        }
+
+        _this.setState({
+          isLoaded: true
+        });
+      }
     });
 
     _defineProperty(_assertThisInitialized(_this), "onError", function () {
@@ -102,23 +118,81 @@ function (_Component) {
       _this.loadImg();
     });
 
-    _defineProperty(_assertThisInitialized(_this), "loadImg", function () {
-      {
-        _this.i = _this.props.mockImage || new Image();
-      }
+    _defineProperty(_assertThisInitialized(_this), "loadImg", function _callee() {
+      var localforage, base64Image;
+      return _regeneratorRuntime.async(function _callee$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              localforage = _this.props.localforage;
 
-      _this.i.src = _this.sourceList[_this.state.currentIndex];
+              {
+                _this.i = _this.props.mockImage || new Image();
+              }
 
-      if (_this.props.crossorigin) {
-        _this.i.crossOrigin = _this.props.crossorigin;
-      }
+              if (!(localforage !== undefined)) {
+                _context.next = 9;
+                break;
+              }
 
-      if (_this.props.decode && _this.i.decode) {
-        _this.i.decode().then(_this.onLoad)["catch"](_this.onError);
-      } else {
-        _this.i.onload = _this.onLoad;
-        _this.i.onerror = _this.onError;
-      }
+              _context.next = 5;
+              return _regeneratorRuntime.awrap(localforage.getItem(_this.sourceList[_this.state.currentIndex]));
+
+            case 5:
+              base64Image = _context.sent;
+
+              if (base64Image) {
+                _this.i.src = base64Image;
+              } else {
+                _this.i.src = _this.sourceList[_this.state.currentIndex];
+              }
+
+              _context.next = 10;
+              break;
+
+            case 9:
+              _this.i.src = _this.sourceList[_this.state.currentIndex];
+
+            case 10:
+              if (_this.props.crossorigin) {
+                _this.i.crossOrigin = _this.props.crossorigin;
+              }
+
+              if (!(_this.props.decode && _this.i.decode)) {
+                _context.next = 23;
+                break;
+              }
+
+              _context.prev = 12;
+              _context.next = 15;
+              return _regeneratorRuntime.awrap(_this.i.decode());
+
+            case 15:
+              _this.onLoad();
+
+              _context.next = 21;
+              break;
+
+            case 18:
+              _context.prev = 18;
+              _context.t0 = _context["catch"](12);
+
+              _this.onError(_context.t0);
+
+            case 21:
+              _context.next = 25;
+              break;
+
+            case 23:
+              _this.i.onload = _this.onLoad;
+              _this.i.onerror = _this.onError;
+
+            case 25:
+            case "end":
+              return _context.stop();
+          }
+        }
+      }, null, null, [[12, 18]]);
     });
 
     _defineProperty(_assertThisInitialized(_this), "unloadImg", function () {
@@ -265,6 +339,7 @@ _defineProperty(Img, "defaultProps", {
   unloader: false,
   decode: true,
   src: [],
+  localforage: undefined,
   // by default, just return what gets sent in. Can be used for advanced rendering
   // such as animations
   container: function container(x) {

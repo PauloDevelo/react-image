@@ -6,7 +6,10 @@ const path = require('path'),
   {writeFileSync, mkdirSync, statSync} = require('fs'),
   outputdir = path.resolve(__dirname, 'dist')
 
+console.log('webpack in mode ' + process.env.NODE_ENV);
+
 const opts = {
+  mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
   entry: './site/app.js',
   output: {
     filename: '[name]-[chunkhash].js',
@@ -51,7 +54,7 @@ if (process.env.NODE_ENV === 'production') {
       parallel: true,
       sourceMap: true,
       uglifyOptions: {
-        compress: {warnings: false}
+        warnings: false
       }
     })
   )

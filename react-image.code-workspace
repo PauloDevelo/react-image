@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"workbench.colorCustomizations": {
+			"titleBar.activeBackground": "#1fe73aa9",
+			"titleBar.inactiveBackground": "#1fe73a6a",
+			"titleBar.activeForeground": "#ffffffff",
+			"titleBar.inactiveForeground": "#ffffffff",
+			"statusBar.background": "#1dca82e1",
+			"statusBar.foreground": "#ffffffff",
+		}
+	}
+}

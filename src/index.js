@@ -248,14 +248,23 @@ class Img extends Component {
       loaderContainer,
       unloaderContainer,
       mockImage,
+      localforage,
 
       ...rest
     } = this.props //eslint-disable-line
 
     // if we have loaded, show img
     if (this.state.isLoaded) {
+      let src = this.sourceList[this.state.currentIndex];
+      if (this.props.localforage !== undefined){
+        const base64Img = this.props.localforage.getItem(this.sourceList[this.state.currentIndex]);
+        if(base64Img !== undefined){
+          src = base64Img;
+        }
+      }
+
       const imgProps = {
-        ...{src: this.sourceList[this.state.currentIndex]},
+        ...{src: src},
         ...rest
       }
 

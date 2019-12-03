@@ -305,13 +305,24 @@ function (_Component) {
           loaderContainer = _this$props.loaderContainer,
           unloaderContainer = _this$props.unloaderContainer,
           mockImage = _this$props.mockImage,
-          rest = _objectWithoutProperties(_this$props, ["container", "loader", "unloader", "src", "decode", "loaderContainer", "unloaderContainer", "mockImage"]); //eslint-disable-line
+          localforage = _this$props.localforage,
+          rest = _objectWithoutProperties(_this$props, ["container", "loader", "unloader", "src", "decode", "loaderContainer", "unloaderContainer", "mockImage", "localforage"]); //eslint-disable-line
       // if we have loaded, show img
 
 
       if (this.state.isLoaded) {
+        var _src = this.sourceList[this.state.currentIndex];
+
+        if (this.props.localforage !== undefined) {
+          var base64Img = this.props.localforage.getItem(this.sourceList[this.state.currentIndex]);
+
+          if (base64Img !== undefined) {
+            _src = base64Img;
+          }
+        }
+
         var imgProps = _objectSpread({}, {
-          src: this.sourceList[this.state.currentIndex]
+          src: _src
         }, {}, rest);
 
         return container(React.createElement("img", imgProps));
